@@ -1,6 +1,7 @@
 let addTaskBtn = document.querySelector(".add-task");
 let inputTask = document.querySelector(".input-task");
-let inputTaskInformation = document.querySelector(".input-task-information");
+// EL TEXTAREA LO IMPLEMENTARE DESP DEL BACKEND
+// let inputTaskInformation = document.querySelector(".input-task-information");
 const taskList = document.querySelector(".tasks-list");
 
 
@@ -31,7 +32,6 @@ taskList.addEventListener("click", (e) => {
     }
 
     if (e.target.classList.contains("yo-btn")) {
-        // if(dad.children[3].textContent === "Encargarse?🤔"){
         if(dad.children[3].value === ""){
             e.target.innerText = `Se encarga ${userName}!!🤚`;
             e.target.value = userName;
@@ -69,13 +69,13 @@ taskList.addEventListener("click", (e) => {
 addTaskBtn.addEventListener("click", () => {
     if (inputTask.value !== "") {
         anim(inputTask, "add-task-anim-input 0.4s ease 0s forwards");
-        anim(inputTaskInformation, "add-task-anim-input-information 0.4s ease 0s forwards");
+        // anim(inputTaskInformation, "add-task-anim-input-information 0.4s ease 0s forwards");
         anim(addTaskBtn ,"add-task-anim 0.4s ease 0s forwards");
         const taskP = inputTask.value;
 
         setTimeout(()=>{
             inputTask.value = "";
-            inputTaskInformation.value = "";
+            // inputTaskInformation.value = "";
         }, 200)
 
         setTimeout(()=>{
