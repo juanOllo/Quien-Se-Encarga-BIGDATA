@@ -22,7 +22,7 @@
                 <div class="title">Quien se encarga??</div>
                 <p class="introduccion">
                     Bienvenido, esta es una web enfocada en la division de tareas, quehaceres o 
-                    para darle uso a tu manera!!
+                    darle el uso que se te ocurra.
                 </p>
                 <span class="inputs-spans" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
                     <span class="login-span">
@@ -39,27 +39,42 @@
                     </span>
                     <button class="login-create-switch-btn" value="0">Crear nuevo usuario</button>
                 </span>
-                <!-- <p class="advertencia">ADVERTENCIA: para cambiar de nombre deberas hablar con los administradores</p> -->
             </div>
         </section>
 
-        <!-- <section id="main-rooms">
-            <section id="rooms-options">
-                <button class="option-create-room-btn"></button>
-                <button class="option-join-room-btn"></button>
+        <section id="main-rooms" style="display: none;">
+            <div class="option-btns-div">
+                <button class="option-create-room-btn user-btns" value="create-room">CREAR SALA</button>
+                <button class="option-join-room-btn user-btns" value="join-room">UNIRSE A UNA SALA</button>
+            </div>
+            <section id="room-options">
+                <ul class="rooms-list">
+                    <!-- id o value = codigo de la sala -->
+                    <li class="room">
+                        <h3>sala de coso</h3>
+                        <button class="delete-room-btn user-btns" style="background-color: var(--rojo); float: right;">abandonar sala</button>
+                    </li>
+                    <li class="room">
+                        <h3>sala de coso 2</h3>
+                        <button class="delete-room-btn user-btns" style="background-color: var(--rojo); float: right;">abandonar sala</button>
+                    </li>
+                </ul>
             </section>
-            <section id="create-room">
+            <section id="create-room" style="display: none;">
                 <h3>Crear una sala</h3>
-                <input type="text" class="new-room-input-name">
-                <p class="new-room-code"></p>
-                <button class="new-room-btn"></button>
+                <input type="text" class="new-room-input-name user-inputs" placeholder="Nombre de la sala">
+                <button class="new-room-btn user-btns">Crear</button>
             </section>
-            <section id="join-room">
+            <section id="join-room" style="display: none;">
                 <h3>Unirse a una sala</h3>
-                <input type="text" class="join-room-input-code">
-                <button class="join-room-btn"></button>
+                <input type="text" class="join-room-input-code user-inputs" placeholder="Codigo de la sala">
+                <button class="join-room-btn user-btns">Unirse</button>
             </section>
-        </section> -->
+            <div class="bottom-btns-div">
+                <button class="logout-btn" style="border-radius: 2rem 2rem 1rem;">Cerrar secion</button>
+                <button class="rooms-back-btn user-btns" style="border-radius: 2rem 2rem 1rem; font-size: 1rem;" value="room-options">Volver</button>
+            </div>
+        </section>
 
         <section id="main">
             <div class="title">Quien se encarga??</div>
@@ -75,6 +90,7 @@
             </div>
             <div class="bottom-btns-div">
                 <button class="reload-btn">Recargar</button>
+                <button class="inroom-back-btn">Volver</button>
                 <button class="logout-btn">Cerrar secion</button>
             </div>
         </section>

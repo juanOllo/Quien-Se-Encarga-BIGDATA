@@ -18,7 +18,11 @@ const newNameSection = document.getElementById("new-user");
 const tasksSection = document.getElementById("main");
 
 
-let usersArr = [];
+const mainRooms = document.getElementById("main-rooms");
+const createRoom = document.getElementById("create-room");
+
+
+// let usersArr = [];
 
 
 start();
@@ -28,7 +32,7 @@ async function saveData() {
     let objData = { "HTMLlist": taskList.innerHTML.toString().replace(/\n/g, '') };
     let jsonData = JSON.stringify(objData);
 
-    await fetch('http://192.168.0.111:3000/transaction', {
+    await fetch('http://192.168.0.105:3000/transaction', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -42,7 +46,7 @@ let auxTargetId = "";
 
 async function showData() {
     try {
-        const response = await fetch('http://192.168.0.111:3000/transaction');
+        const response = await fetch('http://192.168.0.105:3000/transaction');
         const data = await response.json();
         taskList.innerHTML = data.HTMLlist || "";
         showSomeBtns(); // Mostrar botones después de cargar datos
@@ -183,18 +187,26 @@ reloadBtn.addEventListener("click", () => {
     anim(reloadBtn, "reload-btn-anim 0.3s ease-in-out 0s forwards");
 });
 
-const logoutBtn = document.querySelector(".logout-btn");
-logoutBtn.addEventListener("click", () => {
-    anim(logoutBtn, "reload-btn-anim 0.3s ease-in-out 0s forwards");
+const logoutBtns = document.querySelectorAll(".logout-btn");
+for(let logoutBtn of logoutBtns){
+    logoutBtn.addEventListener("click", () => {
+        anim(logoutBtn, "reload-btn-anim 0.3s ease-in-out 0s forwards");
+    
+        setTimeout(() => {
+            if(confirm("Estas seguro que quieres la cerrar secion de usuario?")){
+                userName = "cerrarSecion";
+                localStorage.setItem("user", "");
+                start();
+            }
+        }, 300)
+    });
+}
 
-    setTimeout(() => {
-        if(confirm("Estas seguro que quieres la cerrar secion de usuario?")){
-            userName = "cerrarSecion";
-            localStorage.setItem("user", "");
-            start();
-        }
-    }, 300)
-});
+const inroomBackBtn = document.querySelector(".inroom-back-btn");
+inroomBackBtn.addEventListener("click", () => {
+    mainRooms.style.display = "block";
+    tasksSection.style.display = "none";
+})
 
 
 
@@ -222,7 +234,7 @@ function start() {
     // const userName = localStorage.getItem("user") || "";
     if (userName !== "") {
         newNameSection.style.display = "none";
-        tasksSection.style.display = "block";
+        mainRooms.style.display = "block";
     }
     if(userName === "cerrarSecion"){
         location.reload();
@@ -231,29 +243,42 @@ function start() {
 }
 
 
-getUsers();
+// getUsers();
 
-async function getUsers() {
-    await fetch('http://192.168.0.111:3000/users')
-        .then(x => x.json())
-        .then(y => {
-            usersArr = y;
-            console.log(y);
-        });
-}
+// async function getUsers() {
+//     await fetch('http://192.168.0.105:3000/users')
+//         .then(x => x.json())
+//         .then(y => {
+//             usersArr = y;
+//             console.log(y);
+//         });
+// }
 
 loginBtn.addEventListener("click", async () => {
     if (nameInput.value !== "") {
 
-        let usuario = "";
-        const nombre = nameInput.value;
+        const nombre = nameInput.value.toLowerCase();
         const contraseña = passInput.value;
-        usuario = usersArr.find((u) => u.name === nombre) || "";
-        console.log("el usuario es", usuario);
+        // console.log("el usuario es", usuario);
 
-        if(usuario){
-            if(usuario.clave === contraseña){
-                console.log("ENTRO");
+        const isUserFound = !await fetch(`http://192.168.0.105:3000/isUserAvailable?username=${nombre}`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', } 
+        })
+        .then(x => x.json());
+        // console.log("el usuario existe: ", isUserFound);
+
+        if(isUserFound){
+
+            const isPassCorrect = await fetch(`http://192.168.0.105:3000/isPassCorrect?username=${nombre}&password=${contraseña}`, {
+                method: 'GET', 
+                headers: { 'Content-Type': 'application/json', } 
+            })
+            .then(x => x.json());
+            // console.log("LA CONTRASEÑA ES CORRECTA?: ", isPassCorrect);
+
+            if(isPassCorrect){
+                // console.log("ENTRO");
                 localStorage.setItem("user", nameInput.value);
                 userName = nameInput.value;
                 // console.log(userName);
@@ -261,12 +286,14 @@ loginBtn.addEventListener("click", async () => {
                 start();
                 showSomeBtns(); // Actualizar botones después de cambiar el nombre de usuario
                 nameInput.value = "";
+                passInput.value = "";
             } else {
-                console.log("CONTRASEÑA INCORRECTA");
+                alert('"CONTRASEÑA INCORRECTA"');
                 passInput.value = "";
             }
         } else {
-            console.log("USUARIO NO REGISTRADO");
+            alert('"USUARIO NO REGISTRADO"');
+            passInput.value = "";
         }
     }
 });
@@ -279,7 +306,7 @@ async function postNewUser(nUser) {
     let jsonData = JSON.stringify(nUser);
     console.log("nuevo usuario por pushear: ", jsonData);
 
-    await fetch('http://192.168.0.111:3000/users', {
+    await fetch('http://192.168.0.105:3000/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -293,28 +320,36 @@ createUserBtn.addEventListener("click", async () => {
     if (newNameInput.value !== "" && newPassInput.value !== "") {
 
         let usuario = "";
-        const nombre = newNameInput.value;
-        const contraseña = newPassInput.value;
-        usuario = usersArr.find((u) => u.name === nombre);
-        console.log("el usuario es", usuario);
+        const nombre = newNameInput.value.toLowerCase();
 
-        if(usuario === undefined){
+        const isAvailable = await fetch(`http://192.168.0.105:3000/isUserAvailable?username=${nombre}`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', } 
+        })
+        .then(x => x.json());
+        // console.log("es avalible: ", isAvailable);
+
+        if(isAvailable){
             console.log("SE PUEDE CREAR");
             const newUserCreated = {
+                // tengo que chekear que no se repita el id en la lista de usuarios
                 id : generarCódigoAleatorio(20),
                 name: newNameInput.value,
-                clave: newPassInput.value
+                lowName: newNameInput.value.toLowerCase(),
+                pass: newPassInput.value,
+                userRooms: []
             }
 
             postNewUser(newUserCreated);
-            userName = newUserCreated.name;
-            usersArr.push(newUserCreated);
+            userName = newNameInput.value;
             start();
-            
-        } else {
-            console.log("NOMBRE DE USUARIO EN USO");
-        }
 
+        } else {
+            alert('"NOMBRE DE USUARIO EN USO"');
+        }
+        
+        newNameInput.value = "";
+        newPassInput.value = "";
     }
 });
 
@@ -342,3 +377,57 @@ function generarCódigoAleatorio(longitud) {
     }
     return código;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mainRooms.addEventListener("click", async (e) => {
+    // console.log("clicked btn: ", e.target);
+
+    switch (e.target.classList[0]) {
+        case "option-create-room-btn":
+        case "option-join-room-btn":
+        case "rooms-back-btn":
+            const allSectionsOfroomOptions = Array.from(mainRooms.childNodes).filter(x => x.nodeName === "SECTION");
+            // console.log("los childrens: ", allSectionsOfroomOptions);
+            for(let s of allSectionsOfroomOptions){
+                s.style.display = "none";
+            }
+            document.getElementById(e.target.value).style.display = "flex";
+            break;
+
+        case "room":
+            mainRooms.style.display = "none";
+            tasksSection.style.display = "block";
+            break;
+
+        case "delete-room-btn":
+            if (confirm(`Estas seguro que quieres abandonar la sala "${e.target.parentElement.children[0].textContent}" ?`)) {
+                e.target.parentElement.remove();
+            }
+            // tengo q actualizar la lista de salas del usuario en el back
+            break;
+    
+        default:
+            break;
+    }
+})
