@@ -19,16 +19,47 @@
 
         <section id="new-user">
             <div class="new-user-container">
-                <div class="title" style="font-size: 3rem;">Quien se encarga??</div>
+                <div class="title">Quien se encarga??</div>
                 <p class="introduccion">
                     Bienvenido, esta es una web enfocada en la division de tareas, quehaceres o 
                     para darle uso a tu manera!!
                 </p>
-                <input type="text" class="new-name-input" placeholder="Introduce tu nombre">
-                <button class="new-name-btn">Enviar nombre</button>
+                <span class="inputs-spans" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                    <span class="login-span">
+                        <h3>Iniciar secion</h3>
+                        <input type="text" class="name-input user-inputs" placeholder="Nombre">
+                        <input type="password" class="pass-input user-inputs" placeholder="Contraseña">
+                        <button class="login-btn user-btns">Iniciar</button>
+                    </span>
+                    <span class="new-user-span" style="display: none;">
+                        <h3>Crear usuario</h3>
+                        <input type="text" class="new-name-input user-inputs" placeholder="Introduce tu nombre">
+                        <input type="password" class="new-pass-input user-inputs" placeholder="Crea una contraseña">
+                        <button class="create-user-btn user-btns">Crear Usuario</button>
+                    </span>
+                    <button class="login-create-switch-btn" value="0">Crear nuevo usuario</button>
+                </span>
                 <!-- <p class="advertencia">ADVERTENCIA: para cambiar de nombre deberas hablar con los administradores</p> -->
             </div>
         </section>
+
+        <!-- <section id="main-rooms">
+            <section id="rooms-options">
+                <button class="option-create-room-btn"></button>
+                <button class="option-join-room-btn"></button>
+            </section>
+            <section id="create-room">
+                <h3>Crear una sala</h3>
+                <input type="text" class="new-room-input-name">
+                <p class="new-room-code"></p>
+                <button class="new-room-btn"></button>
+            </section>
+            <section id="join-room">
+                <h3>Unirse a una sala</h3>
+                <input type="text" class="join-room-input-code">
+                <button class="join-room-btn"></button>
+            </section>
+        </section> -->
 
         <section id="main">
             <div class="title">Quien se encarga??</div>
@@ -41,6 +72,10 @@
             <div class="tasks-div">
                 <ul class="tasks-list">
                 </ul>
+            </div>
+            <div class="bottom-btns-div">
+                <button class="reload-btn">Recargar</button>
+                <button class="logout-btn">Cerrar secion</button>
             </div>
         </section>
     </div>
