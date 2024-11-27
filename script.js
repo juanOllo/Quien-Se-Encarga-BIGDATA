@@ -21,8 +21,15 @@ const tasksSection = document.getElementById("main");
 const mainRooms = document.getElementById("main-rooms");
 const createRoom = document.getElementById("create-room");
 
+// esto hay q borrarlo, es solo para mostrar los usuarios en consola
+let usersArr = [];
 
-// let usersArr = [];
+
+
+let publicRoomsArr = [];
+const roomsList = document.querySelector(".rooms-list");
+
+
 
 
 start();
@@ -32,7 +39,7 @@ async function saveData() {
     let objData = { "HTMLlist": taskList.innerHTML.toString().replace(/\n/g, '') };
     let jsonData = JSON.stringify(objData);
 
-    await fetch('http://192.168.0.105:3000/transaction', {
+    await fetch('http://192.168.0.103:3000/transaction', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -46,7 +53,7 @@ let auxTargetId = "";
 
 async function showData() {
     try {
-        const response = await fetch('http://192.168.0.105:3000/transaction');
+        const response = await fetch('http://192.168.0.103:3000/transaction');
         const data = await response.json();
         taskList.innerHTML = data.HTMLlist || "";
         showSomeBtns(); // Mostrar botones después de cargar datos
@@ -229,12 +236,12 @@ inroomBackBtn.addEventListener("click", () => {
 
 
 
-
 function start() {
     // const userName = localStorage.getItem("user") || "";
     if (userName !== "") {
         newNameSection.style.display = "none";
         mainRooms.style.display = "block";
+        roomsList.innerHTML = publicRoomsArr.reduce((acc, obj) => obj.roomHtml + acc, "");
     }
     if(userName === "cerrarSecion"){
         location.reload();
@@ -243,25 +250,25 @@ function start() {
 }
 
 
-// getUsers();
+getUsers();
 
-// async function getUsers() {
-//     await fetch('http://192.168.0.105:3000/users')
-//         .then(x => x.json())
-//         .then(y => {
-//             usersArr = y;
-//             console.log(y);
-//         });
-// }
+async function getUsers() {
+    await fetch('http://192.168.0.103:3000/users')
+        .then(x => x.json())
+        .then(y => {
+            usersArr = y;
+            console.log(y);
+        });
+}
 
 loginBtn.addEventListener("click", async () => {
     if (nameInput.value !== "") {
 
-        const nombre = nameInput.value.toLowerCase();
+        const nombre = nameInput.value.toLowerCase().replace(" ", "");
         const contraseña = passInput.value;
         // console.log("el usuario es", usuario);
 
-        const isUserFound = !await fetch(`http://192.168.0.105:3000/isUserAvailable?username=${nombre}`, {
+        const isUserFound = !await fetch(`http://192.168.0.103:3000/isUserAvailable?username=${nombre}`, {
             method: 'GET', 
             headers: { 'Content-Type': 'application/json', } 
         })
@@ -270,7 +277,7 @@ loginBtn.addEventListener("click", async () => {
 
         if(isUserFound){
 
-            const isPassCorrect = await fetch(`http://192.168.0.105:3000/isPassCorrect?username=${nombre}&password=${contraseña}`, {
+            const isPassCorrect = await fetch(`http://192.168.0.103:3000/isPassCorrect?username=${nombre}&password=${contraseña}`, {
                 method: 'GET', 
                 headers: { 'Content-Type': 'application/json', } 
             })
@@ -306,7 +313,7 @@ async function postNewUser(nUser) {
     let jsonData = JSON.stringify(nUser);
     console.log("nuevo usuario por pushear: ", jsonData);
 
-    await fetch('http://192.168.0.105:3000/users', {
+    await fetch('http://192.168.0.103:3000/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -320,9 +327,9 @@ createUserBtn.addEventListener("click", async () => {
     if (newNameInput.value !== "" && newPassInput.value !== "") {
 
         let usuario = "";
-        const nombre = newNameInput.value.toLowerCase();
+        const nombre = newNameInput.value.toLowerCase().replace(" ", "");
 
-        const isAvailable = await fetch(`http://192.168.0.105:3000/isUserAvailable?username=${nombre}`, {
+        const isAvailable = await fetch(`http://192.168.0.103:3000/isUserAvailable?username=${nombre}`, {
             method: 'GET', 
             headers: { 'Content-Type': 'application/json', } 
         })
@@ -335,7 +342,7 @@ createUserBtn.addEventListener("click", async () => {
                 // tengo que chekear que no se repita el id en la lista de usuarios
                 id : generarCódigoAleatorio(20),
                 name: newNameInput.value,
-                lowName: newNameInput.value.toLowerCase(),
+                lowName: newNameInput.value.toLowerCase().replace(" ", ""),
                 pass: newPassInput.value,
                 userRooms: []
             }
@@ -400,6 +407,7 @@ function generarCódigoAleatorio(longitud) {
 
 
 
+
 mainRooms.addEventListener("click", async (e) => {
     // console.log("clicked btn: ", e.target);
 
@@ -425,6 +433,38 @@ mainRooms.addEventListener("click", async (e) => {
                 e.target.parentElement.remove();
             }
             // tengo q actualizar la lista de salas del usuario en el back
+            break;
+
+        case "new-room-btn":
+            const newRoomName = e.target.parentElement.children[1].value;
+
+            if(newRoomName !== ""){
+                const newRoomCode = generarCódigoAleatorio(6);
+                    // SERIA UTIL QUE CHECKEE QUE ELE CODIGO GENERADO NO ESTÉ EN USO
+
+                const newRoom = {
+                    roomName: newRoomName, 
+                    roomCode: newRoomCode,
+                    roomCreator: userName.toLowerCase().replace(" ", ""),
+                    roomHtml: `
+                        <li class="room" name="${userName}" id="${newRoomCode}">
+                            <h3>${newRoomName}</h3>
+                            <button class="delete-room-btn user-btns" style="background-color: var(--rojo); float: right;">abandonar sala</button>
+                        </li>
+                        `.replaceAll('\n', ''),
+                            // el btn delete-room-btn deberia decir "eliminar sala" si sos el creador
+                    listHtml: ``
+                        // aca se guarda la lista de tares
+                }
+                publicRoomsArr.push(newRoom);
+
+                // ACA, TENGO Q AGREGAR EL CODIGO DE LA SALA A LA LISTA DE SALAS DEL USUARIO
+            }
+            console.log("publicRoomsArr: ", publicRoomsArr);
+            e.target.parentElement.children[1].value = "";
+            
+            start();
+            // luego de crear una sala con exito deberia llevarte a la misma
             break;
     
         default:

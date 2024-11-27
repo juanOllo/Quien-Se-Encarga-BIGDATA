@@ -15,7 +15,14 @@ let usersArr = [
         name: 'admin',
         lowName: 'admin',
         pass: 'juanollo15',
-        userRooms: []
+        userRooms: [],    //ACA GUARDO LAS CLAVES DE LAS SALAS PUBLICAS DEL USUARIO
+        // userPrivateRooms: [
+        //     {
+        //         userPrivateRoomId: ,
+        //         userPrivateRoomHtml: ,
+        //     }
+        // ]    //ACA GUARDO LOS HTML DE LAS LISTAS PRIVADAS DEL USUARIO
+            // las salas privadas se haran en futuro
     },
     {
         id: 2,
@@ -34,9 +41,11 @@ let usersArr = [
 ];
 // let roomsArr = [
 //     {
-//         code: ,
-//         creator: ,
-//         html: ,
+//     roomName: , 
+//     roomCode: ,
+//     roomCreator: ,
+//     roomHtml: ,
+//     listHtml: 
 //     }
 // ]
 
@@ -62,14 +71,14 @@ server.listen(port, () => {
 });
 
 
-
-// app.get('/users', (req, res) => {
-//     // res.json({ : usersArr });
-//     res.send(JSON.stringify(usersArr));
-// });
+// esto hay q borrarlo, es solo para testear
+app.get('/users', (req, res) => {
+    // res.json({ : usersArr });
+    res.send(JSON.stringify(usersArr));
+});
 
 app.get('/isUserAvailable', (req, res) => {
-    const newUserName = req.query.username.toLowerCase(); // Captura el nombre de usuario de la consulta
+    const newUserName = req.query.username.toLowerCase().replace(" ", ""); // Captura el nombre de usuario de la consulta
 
     const usuario = usersArr.find((u) => u.lowName === newUserName);
 
@@ -83,7 +92,7 @@ app.get('/isUserAvailable', (req, res) => {
 });
 
 app.get('/isPassCorrect', (req, res) => {
-    const userNameApproved = req.query.username.toLowerCase(); // Captura el nombre de usuario de la consulta
+    const userNameApproved = req.query.username.toLowerCase().replace(" ", ""); // Captura el nombre de usuario de la consulta
     const passwordToCheck = req.query.password; // Captura el nombre de usuario de la consulta
 
     const usuario = usersArr.find((u) => u.lowName === userNameApproved);
