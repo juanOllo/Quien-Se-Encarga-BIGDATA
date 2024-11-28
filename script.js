@@ -2,8 +2,18 @@ const addTaskBtn = document.querySelector(".add-task");
 const inputTask = document.querySelector(".input-task");
 const taskList = document.querySelector(".tasks-list");
 
-let userName = localStorage.getItem("user") || "";
-// let userName = "";
+
+// localStorage.clear();
+let localUserInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+//  {
+//     // id: '1',
+//     // name: 'admin',
+//     // lowName: 'admin',
+//     // pass: 'juanollo15',
+//     // userRoomsCodes: []
+// };
+let localUserRooms = [];
+
 
 const newNameSection = document.getElementById("new-user");
     const loginBtn = document.querySelector(".login-btn");
@@ -26,8 +36,11 @@ let usersArr = [];
 
 
 
-let publicRoomsArr = [];
 const roomsList = document.querySelector(".rooms-list");
+
+
+const allSectionsOfroomOptions = Array.from(mainRooms.childNodes).filter(x => x.nodeName === "SECTION");
+
 
 
 
@@ -49,8 +62,8 @@ async function saveData() {
     showSomeBtns(); // Asegurarse de que los botones se muestren correctamente
 }
 
+// NO BORRAR! SE USA PARA QUE CUANDO CLICKEAS EN tasksList NO SE LLAME INFINITAMENTE A showData()
 let auxTargetId = "";
-
 async function showData() {
     try {
         const response = await fetch('http://192.168.0.103:3000/transaction');
@@ -63,14 +76,14 @@ async function showData() {
 
     if(auxTargetId === ""){
         taskList.addEventListener("click", async (e) => {
-            auxTargetId = e.target.id;
-            console.log("auxtarget: ", auxTargetId);
+            auxTargetId = e.target.id || "not-available-target-element";
+            console.log("clickedTarget: ", auxTargetId);
             await showData();
-            actuar(auxTargetId); //a esto le habia puesto un await no se pa q
+            clickOnTasksListFunction(auxTargetId); //a esto le habia puesto un await no se pa q
         })
         addTaskBtn.addEventListener("click", async () => {
             auxTargetId = "algo";
-            console.log("auxtarget: ", auxTargetId);
+            console.log("clickedTarget: ", auxTargetId);
             await showData();
             addTaskFunction(); //a esto le habia puesto un await no se pa q
         })
@@ -79,7 +92,7 @@ async function showData() {
 
 }
 
-const actuar = async (elemId) => {
+const clickOnTasksListFunction = async (elemId) => {
 
     const targetElem = document.getElementById(elemId);
     // console.log("target: ", targetElem);
@@ -96,8 +109,8 @@ const actuar = async (elemId) => {
 
     if (targetElem.classList.contains("yo-btn")) {
         if (dad.children[3].value === "") {
-            targetElem.innerText = `Se encarga ${userName}!!🤚`;
-            targetElem.value = userName;
+            targetElem.innerText = `Se encarga ${localUserInfo.name}!!🤚`;
+            targetElem.value = localUserInfo.id;
             targetElem.style.backgroundColor = "var(--azul)";
         }
         await saveData();
@@ -105,8 +118,8 @@ const actuar = async (elemId) => {
 
     if (targetElem.classList.contains("abandonar-btn")) {
         const superDad = dad.parentElement;
-        if (superDad.children[3].value === userName) {
-            superDad.children[3].textContent = `Abandonado por ${userName}..😔 Encargarse?🤔`;
+        if (superDad.children[3].value === localUserInfo.id) {
+            superDad.children[3].textContent = `Abandonado por ${localUserInfo.name}..😔 Encargarse?🤔`;
             superDad.children[3].style.backgroundColor = "var(--marron)";
             superDad.children[3].value = "";
         }
@@ -115,8 +128,8 @@ const actuar = async (elemId) => {
 
     if (targetElem.classList.contains("terminado-btn")) {
         const superDad = dad.parentElement;
-        if (superDad.children[3].value === userName) {
-            superDad.children[3].textContent = `Terminado por ${userName}!!😎👌`;
+        if (superDad.children[3].value === localUserInfo.id) {
+            superDad.children[3].textContent = `Terminado por ${localUserInfo.name}!!😎👌`;
             superDad.children[3].style.backgroundColor = "var(--verde-claro)";
             superDad.children[3].value = "terminado";
             superDad.children[1].style.textDecoration = "line-through";
@@ -142,7 +155,7 @@ const addTaskFunction = async () => {
                 <li class="task">
                     <div class="task-check-btn"></div>
                     <p class="task-p">${taskP}</p>
-                    <button id="${taskP}-task-delete-btn" class="task-delete-btn" name="${userName}">X</button>
+                    <button id="${taskP}-task-delete-btn" class="task-delete-btn" name="${localUserInfo.id}">X</button>
                     <button id="${taskP}-yo-btn" class="yo-btn" value="">Encargarse?🤔</button>
                     <div class="more-btns">
                         <button id="${taskP}-terminado-btn" class="terminado-btn">Terminado!🤓</button>
@@ -171,7 +184,7 @@ function showSomeBtns() {
     const allYoBtns = document.querySelectorAll(".yo-btn");
     for (let b of allYoBtns) {
         const auxDad = b.parentElement;
-        if (b.value === userName) {
+        if (b.value === localUserInfo.id) {
             auxDad.children[4].style.display = "flex";
         } else {
             auxDad.children[4].style.display = "none";
@@ -180,7 +193,7 @@ function showSomeBtns() {
 
     const allDeleteBtns = document.querySelectorAll(".task-delete-btn");
     for (let db of allDeleteBtns) {
-        if (db.name === userName) {
+        if (db.name === localUserInfo.id) {
             db.style.display = "block";
         } else {
             db.style.display = "none";
@@ -201,9 +214,8 @@ for(let logoutBtn of logoutBtns){
     
         setTimeout(() => {
             if(confirm("Estas seguro que quieres la cerrar secion de usuario?")){
-                userName = "cerrarSecion";
-                localStorage.setItem("user", "");
-                start();
+                localStorage.clear();
+                location.reload();
             }
         }, 300)
     });
@@ -235,17 +247,36 @@ inroomBackBtn.addEventListener("click", () => {
 
 
 
+async function start() {
+    console.log("LLAMADA AL start()");
 
-function start() {
-    // const userName = localStorage.getItem("user") || "";
-    if (userName !== "") {
+    console.log("localUserInfo actual: ", localUserInfo);
+    // console.log("localUserInfo ID actual: ", localUserInfo.id);
+    // console.log("userInfo actual: ", JSON.parse(localStorage.getItem("userInfo")));
+    
+    if (localUserInfo.id !== undefined) {
+        localStorage.setItem("userInfo", JSON.stringify(localUserInfo));
+
+        // console.log("los childrens: ", allSectionsOfroomOptions);
+        for(let s of allSectionsOfroomOptions){
+            s.style.display = "none";
+        }
+        allSectionsOfroomOptions[0].style.display = "flex";
+
+
+        let localUserRooms = await fetch(`http://192.168.0.103:3000/getUserRooms?userRoomCodes=${localUserInfo.userRoomsCodes}`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', } 
+        })
+        .then(x => x.json())
+        .catch(error => console.log("ERROR en el FETCH"));
+        console.log("las listas/salas del usuario: ", localUserRooms);
+        localStorage.setItem("userRooms", JSON.stringify(localUserRooms));
+        roomsList.innerHTML = localUserRooms.reduce((acc, obj) => acc + obj.roomHtml, "") || "";
+        
+
         newNameSection.style.display = "none";
         mainRooms.style.display = "block";
-        roomsList.innerHTML = publicRoomsArr.reduce((acc, obj) => obj.roomHtml + acc, "");
-    }
-    if(userName === "cerrarSecion"){
-        location.reload();
-        userName = "";
     }
 }
 
@@ -286,10 +317,18 @@ loginBtn.addEventListener("click", async () => {
 
             if(isPassCorrect){
                 // console.log("ENTRO");
-                localStorage.setItem("user", nameInput.value);
-                userName = nameInput.value;
-                // console.log(userName);
-                loginBtn.parentElement.parentElement.style.display = "none";
+                localUserInfo = await fetch(`http://192.168.0.103:3000/getUserInfo?username=${nombre}`, {
+                    method: 'GET', 
+                    headers: { 'Content-Type': 'application/json', } 
+                })
+                .then(x => x.json());
+                
+                // console.log("Objeto del usuario logueado: ", localUserInfo);
+
+                //  LO HACE EN EL START()
+                // localStorage.setItem("userInfo", localUserInfo);
+                // localStorage.setItem("userRooms", localUserRooms);
+
                 start();
                 showSomeBtns(); // Actualizar botones después de cambiar el nombre de usuario
                 nameInput.value = "";
@@ -344,11 +383,19 @@ createUserBtn.addEventListener("click", async () => {
                 name: newNameInput.value,
                 lowName: newNameInput.value.toLowerCase().replace(" ", ""),
                 pass: newPassInput.value,
-                userRooms: []
+                userRoomsCodes: []
             }
 
             postNewUser(newUserCreated);
-            userName = newNameInput.value;
+
+            localUserInfo = await fetch(`http://192.168.0.103:3000/getUserInfo?username=${nombre}`, {
+                method: 'GET', 
+                headers: { 'Content-Type': 'application/json', } 
+            })
+            .then(x => x.json());
+            localStorage.setItem("userInfo", localUserInfo);
+
+
             start();
 
         } else {
@@ -408,6 +455,52 @@ function generarCódigoAleatorio(longitud) {
 
 
 
+async function postNewRoom(nRoom) {
+    // let objData = { "HTMLlist": taskList.innerHTML.toString().replace(/\n/g, '') };
+    let jsonData = JSON.stringify(nRoom);
+    // console.log("nueva sala por pushear: ", jsonData);
+
+    await fetch('http://192.168.0.103:3000/addNewRoomOnBackend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData
+    });
+    showSomeBtns(); // Asegurarse de que los botones se muestren correctamente
+}
+
+async function postDeleteRoom(roomCode) {
+    let jsonData = JSON.stringify({ code: roomCode});
+    // console.log("usuario por actualizar: ", jsonData);
+
+    const response = await fetch('http://192.168.0.103:3000/removeRoomOnBackend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData
+    });
+    if (!response.ok) { 
+        throw new Error(`Error en la solicitud: ${response.statusText}`); 
+    }
+    showSomeBtns(); // Asegurarse de que los botones se muestren correctamente
+}
+
+async function postUpdateUserInfo(user) {
+    let jsonData = JSON.stringify(user);
+    // console.log("usuario por actualizar: ", jsonData);
+
+    await fetch('http://192.168.0.103:3000/updateUserInfo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData
+    });
+    showSomeBtns(); // Asegurarse de que los botones se muestren correctamente
+}
+
 mainRooms.addEventListener("click", async (e) => {
     // console.log("clicked btn: ", e.target);
 
@@ -415,7 +508,7 @@ mainRooms.addEventListener("click", async (e) => {
         case "option-create-room-btn":
         case "option-join-room-btn":
         case "rooms-back-btn":
-            const allSectionsOfroomOptions = Array.from(mainRooms.childNodes).filter(x => x.nodeName === "SECTION");
+            // const allSectionsOfroomOptions = Array.from(mainRooms.childNodes).filter(x => x.nodeName === "SECTION");
             // console.log("los childrens: ", allSectionsOfroomOptions);
             for(let s of allSectionsOfroomOptions){
                 s.style.display = "none";
@@ -428,9 +521,21 @@ mainRooms.addEventListener("click", async (e) => {
             tasksSection.style.display = "block";
             break;
 
+            // CREAR, BORRAR Y UNIRSE A UNA SALA DEBERIA ACTUALIZAR EL PERFI EN EL BACK
+
         case "delete-room-btn":
             if (confirm(`Estas seguro que quieres abandonar la sala "${e.target.parentElement.children[0].textContent}" ?`)) {
-                e.target.parentElement.remove();
+
+                if(e.target.parentElement.value.toString() === localUserInfo.id){
+                    // console.log("SOS EL CREADOR y el ide d la sala es: ", e.target.parentElement.id);
+                    postDeleteRoom(e.target.parentElement.id);
+                }
+                
+                // TENGO Q ELIMINAR EL CODIGO DE LA SALA DEL userRoomsCodes DEL USUARIO
+                localUserInfo.userRoomsCodes = localUserInfo.userRoomsCodes.filter((x) => x !== e.target.parentElement.id);
+                postUpdateUserInfo(localUserInfo);
+
+                start();
             }
             // tengo q actualizar la lista de salas del usuario en el back
             break;
@@ -440,14 +545,14 @@ mainRooms.addEventListener("click", async (e) => {
 
             if(newRoomName !== ""){
                 const newRoomCode = generarCódigoAleatorio(6);
-                    // SERIA UTIL QUE CHECKEE QUE ELE CODIGO GENERADO NO ESTÉ EN USO
+                    // SERIA UTIL QUE CHECKEE QUE EL CODIGO GENERADO NO ESTÉ EN USO
 
                 const newRoom = {
                     roomName: newRoomName, 
                     roomCode: newRoomCode,
-                    roomCreator: userName.toLowerCase().replace(" ", ""),
+                    roomCreatorId: localUserInfo.id,
                     roomHtml: `
-                        <li class="room" name="${userName}" id="${newRoomCode}">
+                        <li class="room" value="${localUserInfo.id}" id="${newRoomCode}">
                             <h3>${newRoomName}</h3>
                             <button class="delete-room-btn user-btns" style="background-color: var(--rojo); float: right;">abandonar sala</button>
                         </li>
@@ -456,15 +561,29 @@ mainRooms.addEventListener("click", async (e) => {
                     listHtml: ``
                         // aca se guarda la lista de tares
                 }
-                publicRoomsArr.push(newRoom);
 
-                // ACA, TENGO Q AGREGAR EL CODIGO DE LA SALA A LA LISTA DE SALAS DEL USUARIO
+                // CARGO LAS SALA NUEVA EN EL BACK
+                postNewRoom(newRoom);
+
+                localUserInfo.userRoomsCodes.unshift(newRoomCode);
+                postUpdateUserInfo(localUserInfo);
+                // console.log("codigos de sala del usuario: ", localUserInfo.userRoomsCodes);
+                e.target.parentElement.children[1].value = "";
+                start();
+                // luego de crear una sala con exito deberia llevarte a la misma
             }
-            console.log("publicRoomsArr: ", publicRoomsArr);
-            e.target.parentElement.children[1].value = "";
             
+            break;
+
+
+        case "join-room-btn":
+
+            // DE ALGUNA FORMA ME TENGO QUE ASEGURAR QUE LA SALA EXISTE
+            const toJoinRoomCode = e.target.parentElement.children[1].value;
+            localUserInfo.userRoomsCodes.unshift(toJoinRoomCode);
+            postUpdateUserInfo(localUserInfo);
             start();
-            // luego de crear una sala con exito deberia llevarte a la misma
+            // luego de unirse a una sala con exito deberia llevarte a la misma
             break;
     
         default:
