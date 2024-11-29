@@ -15,7 +15,12 @@ let usersArr = [
         name: 'admin',
         lowName: 'admin',
         pass: 'juanollo15',
-        userRoomsCodes: [],    //ACA GUARDO LAS CLAVES DE LAS SALAS PUBLICAS DEL USUARIO
+        userRoomsCodes: [
+            // roomName: ,
+            // roomCode: ,
+            // roomHtml:
+        ],    //ACA GUARDO LAS CLAVES DE LAS SALAS PUBLICAS DEL USUARIO
+
         // userPrivateRooms: [
         //     {
         //         userPrivateRoomId: ,
@@ -46,7 +51,8 @@ let allRoomsArr = [
     // roomCode: ,
     // roomCreatorId: ,
     // roomHtml: ,
-    // listHtml: 
+    // listHtml: ,
+    // indexList:
     // }
 ]
 

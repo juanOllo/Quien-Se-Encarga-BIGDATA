@@ -1,0 +1,76 @@
+taria piola q las funciones q uso como POST al BACK sea una sola
+
+
+
+#CREAR CUENTA
+    el lowName tamb elimina los espacio entoces ahora te podes loguear sin importar donde los pongas
+        no m acuerdo para q pensaba hacer esto!
+
+    cuando creas un usuario checkear que el id no este en uso
+
+
+
+#SALAS
+    (opcional) elegir si crear sala compartida o personal
+
+    X funcioneas eliminar sala y abandonar a una sala
+        X si sos el dueño de la sala tamb se elimina del BACK, sino solo la abandonas
+
+    cuando creas sala asegurarse que el codigo de sala no esta usado
+
+    cuando t unis a una sala asegurarse que el codigo de sala exista asi no agrego codigos incorrectos al userRoomsCodes
+        no te deberia permitir unir dos veces a la misma sala (o sea, no repetir codes en el userRoomsCodes)
+
+    [importante]hacer toda la estructura para entrar a cada sala
+
+    cuando creo una sala y actualizo el user yo le paso la lista de codigos nueva y la remplazo en el BACK
+    pero deveria solo pasarle el nuevo codigo y hacerle unshift() porq sino da error cuando tenes la cuenta
+    abierta en dos dispoditivos a la vez
+        creo que ya lo solucioné cuando actualizo el localUserInfo con un fetch en el start(), abria que testear mas 
+
+    (opcional) mas adelante taria bueno agregar un buscador normal, sin filtros
+
+    mas adelante dentro de rooms podria estar la seccion de editar perfil 
+        (por lo menos para cambiar name(tamb se cambiaria el lowName(hay que checkear que no este en uso)) y pass)
+
+    hay que centrar las salas pero no se como, creo que es por ser un UL
+
+    usar api Clipboard para copiar texto al portapapeles directamente
+        <p id="myParagraph">CODE</p>
+
+        document.getElementById('myParagraph').addEventListener('click', async function() {
+            try {
+                await navigator.clipboard.writeText(this.innerText);
+                alert('Texto copiado al portapapeles');
+            } catch (err) {
+                console.error('Error al copiar el texto: ', err);
+            }
+        });
+
+
+
+
+#TAREAS
+    mas informacion dentro de las TAREAS
+        añadir mas informacion (text) (opcional)
+        añadir quien creó la tarea
+        añadir fecha de creacion?
+        añadir fecha limite/estimada para terminar (opcional) ?
+
+        desp de ser creada se podria agregar comentarios a esa tarea
+
+    mas adelante seguro voy a tener un problema en el orden de las salas en una cuenta cuando te unis a una sala
+        para mi se puede solucionar cuando haces el /getUserRooms
+
+    cada sala podria tener su propio index dentro del obj entonces para actualizar las tareas no tengo q recorrer toda la
+    lista para actualizar la sala, en vez de eso actualizo con el indexFinder() creo q entrar
+        cuando borro una sala para no cambiar el index de las otras salas deberia "vaciar" ese lugar en el arreglo
+
+        cuando agrego salas al arreglo de salas la deberia recorrer y agregarla en los lugares "vacios" si encontras o agregar al final
+    
+    (fruta) taria piola que puedas restructurar el texto de la tarea con ia
+
+
+
+
+TARIA PIOLA UNA WEB/APP PARA ORGANIZAR ESTE TIPO DE TAREAS XD

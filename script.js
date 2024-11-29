@@ -52,7 +52,7 @@ async function saveData() {
     let objData = { "HTMLlist": taskList.innerHTML.toString().replace(/\n/g, '') };
     let jsonData = JSON.stringify(objData);
 
-    await fetch('http://192.168.0.103:3000/transaction', {
+    await fetch('http://192.168.0.113:3000/transaction', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ async function saveData() {
 let auxTargetId = "";
 async function showData() {
     try {
-        const response = await fetch('http://192.168.0.103:3000/transaction');
+        const response = await fetch('http://192.168.0.113:3000/transaction');
         const data = await response.json();
         taskList.innerHTML = data.HTMLlist || "";
         showSomeBtns(); // Mostrar botones después de cargar datos
@@ -263,8 +263,13 @@ async function start() {
         }
         allSectionsOfroomOptions[0].style.display = "flex";
 
+        localUserInfo = await fetch(`http://192.168.0.113:3000/getUserInfo?username=${localUserInfo.lowName}`, {
+            method: 'GET', 
+            headers: { 'Content-Type': 'application/json', } 
+        })
+        .then(x => x.json());
 
-        let localUserRooms = await fetch(`http://192.168.0.103:3000/getUserRooms?userRoomCodes=${localUserInfo.userRoomsCodes}`, {
+        let localUserRooms = await fetch(`http://192.168.0.113:3000/getUserRooms?userRoomCodes=${localUserInfo.userRoomsCodes}`, {
             method: 'GET', 
             headers: { 'Content-Type': 'application/json', } 
         })
@@ -284,7 +289,7 @@ async function start() {
 getUsers();
 
 async function getUsers() {
-    await fetch('http://192.168.0.103:3000/users')
+    await fetch('http://192.168.0.113:3000/users')
         .then(x => x.json())
         .then(y => {
             usersArr = y;
@@ -299,7 +304,7 @@ loginBtn.addEventListener("click", async () => {
         const contraseña = passInput.value;
         // console.log("el usuario es", usuario);
 
-        const isUserFound = !await fetch(`http://192.168.0.103:3000/isUserAvailable?username=${nombre}`, {
+        const isUserFound = !await fetch(`http://192.168.0.113:3000/isUserAvailable?username=${nombre}`, {
             method: 'GET', 
             headers: { 'Content-Type': 'application/json', } 
         })
@@ -308,7 +313,7 @@ loginBtn.addEventListener("click", async () => {
 
         if(isUserFound){
 
-            const isPassCorrect = await fetch(`http://192.168.0.103:3000/isPassCorrect?username=${nombre}&password=${contraseña}`, {
+            const isPassCorrect = await fetch(`http://192.168.0.113:3000/isPassCorrect?username=${nombre}&password=${contraseña}`, {
                 method: 'GET', 
                 headers: { 'Content-Type': 'application/json', } 
             })
@@ -317,7 +322,7 @@ loginBtn.addEventListener("click", async () => {
 
             if(isPassCorrect){
                 // console.log("ENTRO");
-                localUserInfo = await fetch(`http://192.168.0.103:3000/getUserInfo?username=${nombre}`, {
+                localUserInfo = await fetch(`http://192.168.0.113:3000/getUserInfo?username=${nombre}`, {
                     method: 'GET', 
                     headers: { 'Content-Type': 'application/json', } 
                 })
@@ -352,7 +357,7 @@ async function postNewUser(nUser) {
     let jsonData = JSON.stringify(nUser);
     console.log("nuevo usuario por pushear: ", jsonData);
 
-    await fetch('http://192.168.0.103:3000/users', {
+    await fetch('http://192.168.0.113:3000/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -368,7 +373,7 @@ createUserBtn.addEventListener("click", async () => {
         let usuario = "";
         const nombre = newNameInput.value.toLowerCase().replace(" ", "");
 
-        const isAvailable = await fetch(`http://192.168.0.103:3000/isUserAvailable?username=${nombre}`, {
+        const isAvailable = await fetch(`http://192.168.0.113:3000/isUserAvailable?username=${nombre}`, {
             method: 'GET', 
             headers: { 'Content-Type': 'application/json', } 
         })
@@ -388,7 +393,7 @@ createUserBtn.addEventListener("click", async () => {
 
             postNewUser(newUserCreated);
 
-            localUserInfo = await fetch(`http://192.168.0.103:3000/getUserInfo?username=${nombre}`, {
+            localUserInfo = await fetch(`http://192.168.0.113:3000/getUserInfo?username=${nombre}`, {
                 method: 'GET', 
                 headers: { 'Content-Type': 'application/json', } 
             })
@@ -460,7 +465,7 @@ async function postNewRoom(nRoom) {
     let jsonData = JSON.stringify(nRoom);
     // console.log("nueva sala por pushear: ", jsonData);
 
-    await fetch('http://192.168.0.103:3000/addNewRoomOnBackend', {
+    await fetch('http://192.168.0.113:3000/addNewRoomOnBackend', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -474,7 +479,7 @@ async function postDeleteRoom(roomCode) {
     let jsonData = JSON.stringify({ code: roomCode});
     // console.log("usuario por actualizar: ", jsonData);
 
-    const response = await fetch('http://192.168.0.103:3000/removeRoomOnBackend', {
+    const response = await fetch('http://192.168.0.113:3000/removeRoomOnBackend', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -491,7 +496,7 @@ async function postUpdateUserInfo(user) {
     let jsonData = JSON.stringify(user);
     // console.log("usuario por actualizar: ", jsonData);
 
-    await fetch('http://192.168.0.103:3000/updateUserInfo', {
+    await fetch('http://192.168.0.113:3000/updateUserInfo', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -516,9 +521,13 @@ mainRooms.addEventListener("click", async (e) => {
             document.getElementById(e.target.value).style.display = "flex";
             break;
 
-        case "room":
+        case "toRoom":
             mainRooms.style.display = "none";
             tasksSection.style.display = "block";
+
+            // ACA TENDRIA QUE HACER FETCH DE LAS SALAS
+            // taskList.innerHTML = 
+
             break;
 
             // CREAR, BORRAR Y UNIRSE A UNA SALA DEBERIA ACTUALIZAR EL PERFI EN EL BACK
@@ -552,9 +561,13 @@ mainRooms.addEventListener("click", async (e) => {
                     roomCode: newRoomCode,
                     roomCreatorId: localUserInfo.id,
                     roomHtml: `
-                        <li class="room" value="${localUserInfo.id}" id="${newRoomCode}">
-                            <h3>${newRoomName}</h3>
-                            <button class="delete-room-btn user-btns" style="background-color: var(--rojo); float: right;">abandonar sala</button>
+                        <li class="toRoom room" value="${localUserInfo.id}" id="${newRoomCode}">
+                            <h2 class="toRoom" style="text-decoration: underline;">${newRoomName}</h2>
+                            <h5>Lista creada por: ${localUserInfo.name}</h5>
+                            <h5 class="toRoom" value="${localUserInfo.id}">Codigo de la lista: 
+                                <span style="background-color: white; padding: 0.3rem; border: 2px dashed black; font-family: sans-serif">
+                                ${newRoomCode}</span></h5>
+                            <button class="delete-room-btn user-btns">abandonar sala</button>
                         </li>
                         `.replaceAll('\n', ''),
                             // el btn delete-room-btn deberia decir "eliminar sala" si sos el creador
@@ -568,6 +581,7 @@ mainRooms.addEventListener("click", async (e) => {
                 localUserInfo.userRoomsCodes.unshift(newRoomCode);
                 postUpdateUserInfo(localUserInfo);
                 // console.log("codigos de sala del usuario: ", localUserInfo.userRoomsCodes);
+                
                 e.target.parentElement.children[1].value = "";
                 start();
                 // luego de crear una sala con exito deberia llevarte a la misma
